@@ -1,8 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Home</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Home</title>
 
-<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css">
+<link href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" rel="stylesheet">
 <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
 </head><body>
 <table style="text-align: left; font-family: Trebuchet MS; width: 100%; height: 100%;" border="0" cellpadding="2" cellspacing="2">
@@ -27,19 +27,15 @@ The University of Auckland</div>
 </table>
 <br>
 <br>
-<table style="width: 80%; height: 60%; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="2" cellspacing="2">
+<table style="width: 80%; height: 600px; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="2" cellspacing="2">
 <tbody>
 <tr>
-<td style="text-align: center; vertical-align: middle; height: 60%; width: 80%;"><br>
-</td>
-</tr>
-</tbody>
-</table>
-<br>
-<div id="mymap" style="width: 100%; height: 100%;"></div>
+<td style="text-align: center; vertical-align: middle; width: 80%; height: 80%;"><br>
+<div id="mymap" style="width: 100%; height: 100%;"><br>
+</div>
 <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
 <script>
-var mymap = L.map('mymap').setView([-36.858, 174.775], 14);
+var mymap = L.map('mymap').setView([-36.858, 174.775], 13);
 L.tileLayer('http://{s}.tile.openstreetmap.se/hydda/base/{z}/{x}/{y}.png', {
 maxZoom: 20,
 attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -1322,7 +1318,11 @@ case 'parnellDomain': return {color: "#00cc00", fillOpacity: "0.5"}
 } ).addTo(mymap);
 L.marker([-36.8603, 174.77545833333335]).addTo(mymap)
 .bindPopup("<b>The Parnell Domain</b>").openPopup();
-</script>
+</script></td>
+</tr>
+</tbody>
+</table>
+<br>
 <br>
 <table style="width: 80%; text-align: left; margin-left: auto; margin-right: auto; background-color: rgb(42, 138, 49);" border="0" cellpadding="2" cellspacing="2">
 <tbody>
