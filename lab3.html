@@ -1,17 +1,32 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Lab 3</title>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+
+<title>Lab 3</title><link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.css">
 <style>
-A{text-decoration:none}
-a.specialeffects:hover {
-color: white ;
-background-color: transparent ;
-font-weight: bold ;
-}
 html, body {height: 100%;}
 </style>
+<script src="https://api.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.js"></script>
 </head>
-<body style="margin: 0pt; color: rgb(0, 0, 0); background-color: rgb(224, 224, 224);" "alink="#3ebcef" link="#ffffff" vlink="#ffffff">
+<body style="margin: 0pt; color: rgb(0, 0, 0); background-color: rgb(224, 224, 224);" alink="#3ebcef" link="#000000" vlink="#000000">
+<style>
+A{text-decoration:none;}
+A:hover {text-decoration: underline;};
+	<!-- menu bar bold -->
+A.specialeffects {color: #ffffff;}
+A.specialeffects:link  {text-decoration: none; color: #ffffff;}
+A.specialeffects:visited {text-decoration: none; color: #ffffff;}
+A.specialeffects:hover {text-decoration: none; color: #ffffff; font-weight: bold;}
+A.specialeffects:active {text-decoration: none; color: #ffffff;}
+    
+	.mapboxgl-popup {
+        max-width: 400px;
+        font-size: 12px;
+        line-height: 10px;
+        font-family: 'Helvetica Neue', Helvetica, sans-serif;
+        text-align: center;
+		
+    }
+</style>
 <table style="text-align: left; font-family: Trebuchet MS; width: 100%; height: 100%;" border="0" cellpadding="2" cellspacing="2">
 <tbody>
 <tr>
@@ -38,20 +53,277 @@ The University of Auckland</big></big></h4>
 </tr>
 </tbody>
 </table>
-<table style="width: 80%; text-align: center; margin-left: auto; margin-right: auto;" border="0" cellpadding="2" cellspacing="2">
+<table style="width: 80%; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="2" cellspacing="2">
 <tbody>
-<tr>
-<td>Page Under Construction<br>
+<tr> 
+<td> Below are two maps showing New Zealand's Nine Great Walks administered by the Department of Conservation. The map on the left was made using Mapbox, the map on the right was made using Mapbox studio and Mapbox GL JS.
+</tr>
+</tbody>
+</table>
+
+<table style="width: 90%; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr> 
+<td style="text-align: center; vertical-align: left; height: 70%; width: 50%;"> Map 1: Mapbox Studio
+</td>
+<td style="text-align: center; vertical-align: left; height: 70%; width: 50%;"> Map 2: Mapbox Studio and Mapbox GL JS
 </td>
 </tr>
 </tbody>
 </table>
-<table style="text-align: left; margin-left: auto; margin-right: auto; height: 70%; width: 80%;" border="0" cellpadding="2" cellspacing="2">
+
+			<!-- place holder cell -->
+<table style="width: 90%; height: 70%; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="2" cellspacing="2">
 <tbody>
 <tr>
-<td style="text-align: center; vertical-align: middle; width: 100%; height: 70%;">
-<br>
-<br>
+<td style="text-align: left; vertical-align: left; height: 70%; width: 0%;"></td>
+				
+			<!-- left hand cell -->
+<td style="text-align: left; vertical-align: left; height: 70%; width: 50%;">
+<div id="mymap" style="width: 100%; height: 100%;"></div>
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoiZmNodTI3NCIsImEiOiJjaXJ3cmFjaTIwMDByMnRvZmU3dzlnd3U3In0.umLFoFcHC8X7HcCm56dEeQ';
+var mymap = new mapboxgl.Map({
+container: 'mymap',
+style: "mapbox://styles/fchu274/cirwrmz9r0043g7nhsjbt00oe",
+center: [174.19, -41.25],
+zoom: 4.65
+});
+ </script>
+</td>
+			
+			<!-- right hand cell -->
+<td style="text-align: left; vertical-align: left; height: 70%; width: 50%;">
+<div id='newmap' style='width: 100%; height: 100%;'></div>
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoiZmNodTI3NCIsImEiOiJjaXJ3cmFjaTIwMDByMnRvZmU3dzlnd3U3In0.umLFoFcHC8X7HcCm56dEeQ';
+
+var newmap = new mapboxgl.Map({
+container: 'newmap',
+style: 'mapbox://styles/fchu274/cirwv3j2v0044g5kr5ei9w6lw',
+center: [174.19, -41.25],
+zoom: 4.65
+});
+
+
+
+		
+newmap.on('load', function () {
+	newmap.addSource('greatwalks-3csvpp', {
+		type: 'vector', 
+		url: 'mapbox://fchu274.9fx9hv6i'
+		});
+	newmap.addLayer({
+		"id": "greatwalks-3csvpp",
+		"type": "line",
+		"source": "greatwalks-3csvpp",
+		"source-layer": "greatwalks-3csvpp",
+		"layout": {
+			"line-join": "round",
+			"line-cap": "round"
+			},
+		
+		"paint": {
+			"line-color": "#6932b4",
+			"line-width": 2
+			}
+	});
+
+		<!-- mouse pointer -->
+	newmap.on('mousemove', function (e){
+		var features = newmap.queryRenderedFeatures(e.point, {layers: ['markers']});
+	newmap.getCanvas().style.cursor = features.length ? 'pointer':'';
+	});
+
+		<!-- marker info -->
+	newmap.addSource('markers', {
+		"type": 'geojson',
+		"data": {
+			 "type": "FeatureCollection",
+  					"features": [
+      					{
+      						"type": "Feature",
+      						"properties": {
+      							"description": "<strong>Rakiura Track</strong><p><a href=\"http:/www.doc.govt.nz/rakiuratrack/\" target=\_blank\" title=\"Opens in a new window\">More information</a></p>",
+       						"marker-symbol": "mountain-15",
+        					"name": "Rakiura Track"
+      						},
+      						"geometry": {
+        					"type": "Point",
+        					"coordinates": [
+          						168.06017875671384,
+          						-46.86940445885525
+        									]
+      									}
+    						},
+    					{
+      						"type": "Feature",
+     						"properties": {
+     							"description": "<strong> Kepler Track</strong><p><a href=\"http:/www.doc.govt.nz/keplertrack/\" target=\_blank\" title=\"Opens in a new window\">More information</a></p>",
+        					"marker-symbol": "mountain-15",
+        					"name": "Kepler Track"
+      						},
+      						"geometry": {
+       						"type": "Point",
+        					"coordinates": [
+         						167.6877647638321,
+          						-45.48561670593032
+        									]
+      									}
+						    },
+						    {
+						      "type": "Feature",
+						      "properties": {
+						      	"description": "<strong> Milford Track</strong><p><a href=\"http:/www.doc.govt.nz/milfordtrack/\" target=\_blank\" title=\"Opens in a new window\">More information</a></p>",
+						        "marker-symbol": "mountain-15",
+						        "name": "Milford Track"
+						      },
+						      "geometry": {
+						        "type": "Point",
+						        "coordinates": [
+						          167.7836376428604,
+						          -44.79283424501071
+							        ]
+							      }
+							    },
+							    {
+							      "type": "Feature",
+							      "properties": {
+							      	"description": "<strong> Routeburn Track</strong><p><a href=\"http:/www.doc.govt.nz/routeburntrack/\" target=\_blank\" title=\"Opens in a new window\">More information</a></p>",
+							        "marker-symbol": "mountain-15",
+							        "name": "Routeburn Track"
+							      },
+							      "geometry": {
+							        "type": "Point",
+							        "coordinates": [
+							          168.16854000091553,
+							          -44.73856413767579
+							        ]
+							      }
+							    },
+							    {
+							      "type": "Feature",
+							      "properties": {
+							      	"description": "<strong> Heaphy Track</strong><p><a href=\"http:/www.doc.govt.nz/heaphytrack/\" target=\_blank\" title=\"Opens in a new window\">More information</a></p>",
+							        "marker-symbol": "mountain-15",
+							        "name": "Heaphy Track"
+							      },
+							      "geometry": {
+							        "type": "Point",
+							        "coordinates": [
+							          172.1419644355774,
+							          -40.955651439078444
+							        ]
+							      }
+							    },
+							    {
+							      "type": "Feature",
+							      "properties": {
+							      	"description": "<strong> Abel Tasman Coast Track</strong><p><a href=\"http:/www.doc.govt.nz/abeltasmantrack/\" target=\_blank\" title=\"Opens in a new window\">More information</a></p>",
+							        "marker-symbol": "mountain-15",
+							        "name": "Abel Tasman Coast Track"
+							      },
+							      "geometry": {
+							        "type": "Point",
+							        "coordinates": [
+							          173.05094361305237,
+							          -40.873817181658545
+							        ]
+							      }
+							    },
+							    {
+							      "type": "Feature",
+							      "properties": {
+							      	"description": "<strong> Whanganui Journey</strong><p><a href=\"http:/www.doc.govt.nz/whanganuijourney/\" target=\_blank\" title=\"Opens in a new window\">More information</a></p>",
+							        "marker-symbol": "mountain-15",
+							        "name": "Whanganui Journey"
+							      },
+							      "geometry": {
+							        "type": "Point",
+							        "coordinates": [
+							          175.12211322784424,
+							          -39.58905492619934
+							        ]
+							      }
+							    },
+							    {
+							      "type": "Feature",
+							      "properties": {
+							      	"description": "<strong> Tongariro Northern Circuit</strong><p><a href=\"http:/www.doc.govt.nz/tongarironortherncircuit/\" target=\_blank\" title=\"Opens in a new window\">More information</a></p>",
+							        "marker-symbol": "mountain-15",
+							        "name": "Tongariro Northern Circuit"
+							      },
+							      "geometry": {
+							        "type": "Point",
+							        "coordinates": [
+							          175.5778956413269,
+							          -39.34079887334848
+							        ]
+							      }
+							    },
+							    {
+							      "type": "Feature",
+							      "properties": {
+							      	"description": "<strong> Lake Waikaremoana Great Walk</strong><p><a href=\"http://www.doc.govt.nz/waikaremoana/\" target=\_blank\" title=\"Opens in a new window\">More information</a></p>",
+							        "marker-symbol": "mountain-15",
+							        "name": "Lake Waikaremoana Great Walk"
+							      },
+							      "geometry": {
+							        "type": "Point",
+							        "coordinates": [
+							          176.9937801361084,
+							          -38.78413040118211
+							        ]
+							      }
+							    }
+							  ]
+									}
+	});
+		
+		<!-- marker info -->
+	newmap.addLayer({
+		"id": "markers",
+		"type": "symbol",
+		"source": "markers",
+		"layout": {
+				"icon-image": "mountain-15",
+				"icon-allow-overlap": true
+		
+				// No longer needed
+				// "text-field": "",
+				// "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+				// "text-offset": [0, 0.6],
+				// "text-size": 10,
+				// "text-anchor": "top"
+		}
+	});
+
+		<!-- zoom range-->
+	newmap.setLayerZoomRange('greatwalks-3csvpp', 8, 22);
+});
+		<!-- pop up function -->
+	newmap.on('click', function (e) {
+    	var features = newmap.queryRenderedFeatures(e.point, { layers: ['markers'] });
+
+    if (!features.length) {
+        return;
+    }
+    var feature = features[0];
+    var popup = new mapboxgl.Popup()
+        .setLngLat(feature.geometry.coordinates)
+        .setHTML(feature.properties.description)
+        .addTo(newmap);
+	});
+	
+		<!-- zoom function -->
+	newmap.on('dblclick', function (e){
+		var features = newmap.queryRenderedFeatures(e.point, {layers: ['markers']});
+		if (features.length) {
+			newmap.flyTo({center: features[0].geometry.coordinates, zoom: 8.5});
+		}
+	});
+
+</script>
 </td>
 </tr>
 </tbody>
