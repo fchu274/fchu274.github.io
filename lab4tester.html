@@ -1,0 +1,231 @@
+<html><head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+	<title>Lab 4</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="http://npmcdn.com/leaflet@0.7.7/dist/leaflet.css" />
+	<script src="http://npmcdn.com/leaflet@0.7.7/dist/leaflet.js"></script>
+<style>
+						<!-- webpage scale -->
+	html, body {height: 100%;}
+
+			<!-- content style -->
+	.info {
+		padding: 15px;
+		font: 12px Trebuchet MS, sans-serif;
+		background: black;
+		background: rgba(255, 255, 255, 0.9);
+		box-shadow: 0 0 10px rgba(0,0,0,0.2);
+		border-radius: 15px;
+		}
+			
+	.info h4 {
+		margin: 0 0 0px;
+		color: '#7f2704';
+		}
+		
+		
+			<!-- legend style -->
+	.legend {
+		text-align: left;
+		line-height: 25px;
+		color: #ffffff;
+		}
+		
+	.legend i {
+		width: 18px;
+		height: 18px;
+		float: left;
+		margin-right: 8px;
+		opacity: 0.9;
+		}
+		
+		
+			<!-- menu bar bold -->
+	A.specialeffects {color: #ffffff;}
+	A.specialeffects:link  {text-decoration: none; color: #ffffff;}
+	A.specialeffects:visited {text-decoration: none; color: #ffffff;}
+	A.specialeffects:hover {text-decoration: none; color: #ffffff; font-weight: bold;}
+	A.specialeffects:active {text-decoration: none; color: #ffffff;}
+</style>
+</head>
+
+<body style="margin: 0pt; color: rgb(0, 0, 0); background-color: rgb(224, 224, 224);">
+<table style="text-align: left; font-family: Trebuchet MS; width: 100%; height: 100%;" border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="vertical-align: middle; height: 100%; width: 100%;">
+<table style="width: 80%; text-align: left; margin-left: auto; margin-right: auto;" border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="width: 40%; text-align: center; vertical-align: middle;">
+<div style="color: rgb(33, 120, 12); text-align: center;">
+<h4><big><big>F Church<br>
+</big></big></h4>
+</div>
+<div style="color: rgb(33, 120, 12); text-align: center;">
+<h4><big><big>Geography 771
+| 2016<br>
+The University of Auckland</big></big></h4>
+</div>
+</td>
+<td style="width: 60%; text-align: center;"><br>
+<div style="color: rgb(33, 120, 12); text-align: center;">
+<h1><big>Lab 4</big></h1>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<table style="width: 80%; text-align: center; margin-left: auto; margin-right: auto;" border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td>
+</td>
+</tr>
+</tbody>
+</table>
+<table style="text-align: left; margin-left: auto; margin-right: auto; height: 70%; width: 80%;" border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="text-align: center; vertical-align: middle; width: 100%; height: 70%;">
+<div id="mymap" style="width: 100%; height: 100%;"><br>
+</div>
+<script type="text/javascript" src="editedfireHex.js"></script>
+
+<script>
+								<!-- Tileset -->
+var mymap = L.map('mymap').setView([-36.892484305134516, 174.832360900751553], 10);
+L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+maxZoom: 16,
+attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ | Fire Data &copy; <a href="www.fire.org.nz/about-us/Facts-and-Figures/Pages/Statistics-Data-Fields.html">2016 New Zealand Fire Service</a>',
+}).addTo(mymap);
+
+								<!-- Category colours -->
+function getColor(d) {
+    return d > 80 ? '#994a00' :
+           d > 40  ? '#cc6300' :
+           d > 20  ? '#ff881a' :
+           d > 10  ? '#ffa34d' :
+           d > 5   ? '#ffbd80' :
+           d > 0   ? '#ffd7b3' :
+           d < 1   ? '#fae4d1' :
+                      '#FFEDA0';
+}
+								<!-- Hex Colours -->
+function style(feature) {
+    return {
+        fillColor: getColor(feature.properties.PNTCNT),
+        weight: 1.5,
+        opacity: 1,
+        color: '#ffefdf',
+        fillOpacity: 0.8
+    };
+}
+
+var geojson;
+								<!-- Rollover highlight -->
+	function highlightFeature(e){
+		
+		var layer = e.target;
+		
+		layer.setStyle({
+		weight: 3,
+		color: '#000000',
+		fillOpacity: 1.0
+		});
+		
+	if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge){
+	layer.bringToFront();
+	}
+	
+	info.update(layer.feature.properties);
+	}
+
+	function resetHighlight(e){
+		geojson.resetStyle(e.target);
+		info.update();
+		}
+		
+	function onEachFeature(feature, layer){
+		layer.on ({
+			mouseover: highlightFeature,
+			mouseout: resetHighlight,
+			});
+		}
+
+		
+								<!-- Display geoJson -->
+geojson = L.geoJson(hexbin_map, {
+								style:style,
+								onEachFeature: onEachFeature
+								}).addTo(mymap);
+								
+
+								<!-- Control window -->
+var info = L.control();
+
+	info.onAdd = function (mymap) {
+		this._div = L.DomUtil.create('div', 'info'); 
+		this.update();
+		return this._div;
+	};
+	
+								<!-- Hover text -->
+	info.update = function (props) {
+		this._div.innerHTML = '<h4>Number of structural fires:</h4>' + (props ? props.PNTCNT + ' fires ' 
+			: 'Hover over hexbins to see fires');
+	};
+info.addTo(mymap);
+
+
+								<!-- Legend -->
+var legend = L.control({position: 'bottomright'});
+	
+	legend.onAdd = function(mymap){
+		
+								<!-- Legend categories -->
+		var div = L.DomUtil.create('div', 'info legend'),
+			grades = [0, 5, 10, 20, 40, 80],
+			key_labels = ["1 to 5", "6 to 10", "11 to 20", "21 to 40", "41 to 80", ">80"],
+			labels = ["<b>Fires per hexbin</b>"],
+			from, to;
+
+								<!-- Legend colours -->
+	for (var i = 0; i < grades.length; i++){
+		from = grades [i];
+		to = grades[i + 1];
+		
+		labels.push(
+		'<i style = "background:' + getColor(from + 1) + '"></i>' +
+			key_labels[i]);
+		}
+
+	div.innerHTML = labels.join('<br>');
+	return div;
+	};
+	
+legend.addTo(mymap);
+</script>
+</td>
+</tr>
+</tbody>
+</table>
+
+<table style="background-color: rgb(62, 188, 239); width: 80%; text-align: center; margin-left: auto; margin-right: auto;" border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="width: 16.67%; color: white; text-align: center;"><a class="specialeffects" href="index.html">Home</a></td>
+<td style="width: 16.67%; color: white; text-align: center;"><a class="specialeffects" href="lab2.html">Lab 2</a></td>
+<td style="width: 16.67%; color: white; text-align: center;"><a class="specialeffects" href="lab3.html">Lab 3</a></td>
+<td style="width: 16.67%; color: white; text-align: center;"><a class="specialeffects" href="lab4.html">Lab 4</a></td>
+<td style="width: 16.67%; color: white; text-align: center;"><a class="specialeffects" href="lab5.html">Lab 5</a></td>
+<td style="width: 16.67%; color: white; text-align: center;"><a class="specialeffects" href="project.html">Project</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</body></html>
