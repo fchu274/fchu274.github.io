@@ -8,7 +8,7 @@
 						<!-- webpage scale -->
 	html, body {height: 100%;}
 						
-
+					
 	.info {
 		background-color: white;
 		opacity: 0.8;
@@ -18,6 +18,24 @@
 		font-family: Helvetica, sans-serif;
 		}
 		
+	.info h4 {
+		margin: 0 0 0px;
+		color: black;
+		}
+				
+	.legend {	
+		text-align: left;
+		line-height: 20px;
+		}
+		
+			
+	.legend i {
+		width: 18px;
+		height: 18px;
+		float: left;
+		margin-right: 8px;
+		opacity: 1;
+		}
 						<!-- menu bar -->
 	A.specialeffects {color: #ffffff;}
 	A.specialeffects:link  {text-decoration: none; color: #ffffff;}
@@ -26,28 +44,6 @@
 	A.specialeffects:active {text-decoration: none; color: #ffffff;}
 	
 
-	.info {}
-			
-	.info h4 {
-		margin: 0 0 0px;
-		color: black;
-		}
-		
-		
-			<!-- legend style -->
-	.legend {
-		text-align: left;
-		line-height: 25px;
-		color: rgba(255, 255, 255, 1);
-		}
-		
-	.legend i {
-		width: 18px;
-		height: 18px;
-		float: left;
-		margin-right: 8px;
-		opacity: 1;
-		}
 
 </style>
 </head>
@@ -195,7 +191,7 @@ var legend = L.control({position: 'bottomright'});
 		var div = L.DomUtil.create('div', 'info legend'),
 			grades = [0, 5, 10, 20, 40, 80],
 			key_labels = ["1 to 5", "6 to 10", "11 to 20", "21 to 40", "41 to 80", ">80"],
-			labels = ["<b>Fires per hexbin</b>"],
+			labels = ["<b>Number of fires</b>"],
 			from, to;
 
 								<!-- Legend colours -->
