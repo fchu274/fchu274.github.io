@@ -1,17 +1,76 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Lab 5</title>
+	<title>Lab 5</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="http://npmcdn.com/leaflet@0.7.7/dist/leaflet.css" />
+	<script src="http://npmcdn.com/leaflet@0.7.7/dist/leaflet.js"></script>
 <style>
-A{text-decoration:none}
-a.specialeffects:hover {
-color: white ;
-background-color: transparent ;
-font-weight: bold ;
-}
-html, body {height: 100%;}
+						
+	html, body {height: 100%;}
+										
+
+	.info {
+		background-color: white;
+		opacity: 0.8;
+		border-radius: 20px;
+		padding: 10px;
+		font: 12px;
+		font-family: Helvetica, sans-serif;
+		position: top;
+		}
+		
+	.info h4 {
+		margin: 0 0 0px;
+		color: black;
+		}
+
+
+	.legend {	
+		text-align: left;
+		line-height: 21px;
+		background-color: white;
+		border-radius: 20px;
+		padding: 10px;
+		}
+		
+			
+	.legend i {
+		width: 18px;
+		height: 18px;
+		float: left;
+		margin-right: 8px;
+		opacity: 1;
+		border: 1px solid rgba(156, 141, 136, 0.2);
+		}
+
+						<!-- menu bar -->
+	A.specialeffects {color: #ffffff;}
+	A.specialeffects:link  {text-decoration: none; color: #ffffff;}
+	A.specialeffects:visited {text-decoration: none; color: #ffffff;}
+	A.specialeffects:hover {text-decoration: none; color: #ffffff; font-weight: bold;}
+	A.specialeffects:active {text-decoration: none; color: #ffffff;}
+	
+ .leaflet-popup-close-button {
+        display:none;
+    }
+
+  .leaflet-label-overlay {
+        line-height:0px;
+        margin-top: 1px;
+        position: absolute;
+		color: black;
+		font: 14px Arial, sans-serif;
+
+    }
+
 </style>
 </head>
-<body style="margin: 0pt; color: rgb(0, 0, 0); background-color: rgb(224, 224, 224);" "alink="#3ebcef" link="#ffffff" vlink="#ffffff">
+
+<body style="margin: 0pt; color: rgba(0, 0, 0, 1); background-color: rgba(224, 224, 224, 1);">
+<style>
+
+		
+</style>
 <table style="text-align: left; font-family: Trebuchet MS; width: 100%; height: 100%;" border="0" cellpadding="2" cellspacing="2">
 <tbody>
 <tr>
@@ -38,24 +97,224 @@ The University of Auckland</big></big></h4>
 </tr>
 </tbody>
 </table>
-<table style="width: 80%; text-align: center; margin-left: auto; margin-right: auto;" border="0" cellpadding="2" cellspacing="2">
+<table style="width: 80%; text-align: center; vertical-align: middle; margin-left: auto; margin-right: auto;" border="0" cellpadding="2" cellspacing="2">
 <tbody>
 <tr>
-<td>Page Under Construction<br>
+<td>Below is a map showing the location quotient of tweets between June 2012 and September 2016. The location quotient is used to determine the relative concentration of tweets in each hexbin, in this case between tweets containing the terms "Maori" and "Pizza". Although there are more "Pizza" tweets in total (8299 vs 5709), the Location Quotient formula takes this into account when calculating relative concentrations of tweets. Although one hexbin may have a greater total number of "Pizza" tweets, 
 </td>
 </tr>
 </tbody>
 </table>
-<table style="text-align: left; margin-left: auto; margin-right: auto; height: 70%; width: 80%;" border="0" cellpadding="2" cellspacing="2">
+<table style="text-align: left; vertical-align: middle; margin-left: auto; margin-right: auto; height: 70%; width: 80%;" border="0" cellpadding="2" cellspacing="2">
 <tbody>
 <tr>
-<td style="text-align: center; vertical-align: middle; width: 100%; height: 70%;">
-<br>
-<br>
+<td style="text-align: left; vertical-align: middle; width: 100%; height: 70%;">
+<div id="map" style="width: 100%; height: 100%;">
+</div>
+<script type="text/javascript" src="tweetratio.js"></script>
+<script>
+var leafletAttr1 = 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ | Twitter Data &copy; <a href="https://twitter.com/mattzook">Matt Zook</a>, <a href="http://www.floatingsheep.org/p/dolly.html">Dolly</a> and <a href="http://www.floatingsheep.org/">Floating Sheep</a>',
+		leafletUrl1 = 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+
+var leafletAttr2 = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | Twitter Data &copy; <a href="https://twitter.com/mattzook">Matt Zook</a>, <a href="http://www.floatingsheep.org/p/dolly.html">Dolly</a> and <a href="http://www.floatingsheep.org/">Floating Sheep</a>',
+		leafletUrl2 = 'http://stamen-tiles-{s}.a.ssl.fastly.net/terrain-background/{z}/{x}/{y}.png';
+
+var lightGray = L.tileLayer(leafletUrl1, {attribution: leafletAttr1}),
+	terrain = L.tileLayer(leafletUrl2, {attribution: leafletAttr2});
+
+
+
+								<!-- Tilesets -->
+var map = L.map('map', {
+	center: [-40.9006, 174.8860],
+	zoom: 5,
+	layers: [lightGray]
+});
+
+var baseMaps = {
+	"Grayscale": lightGray,
+	"Terrain": terrain,
+};
+
+								<!-- Category colours -->
+function getColor(d) {
+    return d >= 1.101 ? '#ff4d4d' :
+           d >= 0.901  ? '#ffffcc' :
+           d >= 0.001   ? '#ffb366':
+		   d == 0 ? 'transparent':
+    	   'transparent';
+}
+								<!-- Hex Colours -->
+function style(feature) {
+    return {
+        fillColor: getColor(feature.properties.RATIO),
+        weight: 0.7,
+        opacity: 1,
+        color: '#9c8d88',
+        fillOpacity: 0.7
+    };
+}
+								// Highlights/hovers
+var geojson;
+
+
+function highlightFeature(e){
+		
+		var layer = e.target;
+		
+		layer.setStyle({
+		weight: 1.5,
+		color: '#000000',
+		fillOpacity: 1.0
+		});
+		
+	if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge){
+	layer.bringToFront();
+	}
+	
+	info.update(layer.feature.properties);
+	}
+
+	function resetHighlight(e){
+		geojson.resetStyle(e.target);
+		info.update();
+		}
+		
+	function onEachFeature(feature, layer){
+		layer.on ({
+			mouseover: highlightFeature,
+			mouseout: resetHighlight,
+			});
+		}
+
+var info = L.control();
+
+	info.onAdd = function (map) {
+		this._div = L.DomUtil.create('div', 'info'); 
+		this.update();
+		return this._div;
+	};
+	
+								<!-- Hover text -->
+	info.update = function (props) {
+		this._div.innerHTML = '<h4>"Maori" to "Pizza" Location Quotient:</h4>' + (props ? '<b> Location Quotient: ' + props.RATIO + '</b><br />' +
+		'"Maori" Tweets: ' + props.MaoriNum + '<br />' + '"Pizza" Tweets: ' + props.COUNT 
+			: 'Hover to see ratio of tweet terms');
+	};
+info.addTo(map);
+
+geojson = L.geoJson(tweets, {
+					style:style,
+					onEachFeature:onEachFeature	
+				}).addTo(map);
+
+
+								
+								
+													//Legend
+								
+var legend = L.control({position: 'bottomright'});
+	
+	legend.onAdd = function(map){
+		
+		var div = L.DomUtil.create('div', 'info legend'),
+			grades = [,0.001, 0.900, 1.100],
+			key_labels = ["No Tweets", "More 'Pizza' Tweets", "Equal Tweets", "More 'Maori' Tweets", "No Tweets"],
+			labels = ["<b>Relative dominance of tweets, June 2012-September 2016</b>"],
+			from, to;
+			
+	for (var i = 0; i < grades.length; i++){
+		from = grades [i];
+		to = grades[i + 0.001];
+		
+		labels.push(
+		'<i style = "background:' + getColor(from + 0.001) + '"></i>' +
+			key_labels[i]);
+		}
+
+	div.innerHTML = labels.join('<br>');
+	return div;
+	};
+	
+legend.addTo(map);
+													// Label overlays
+
+ L.LabelOverlay = L.Class.extend({
+        initialize: function(/*LatLng*/ latLng, /*String*/ label, options) {
+            this._latlng = latLng;
+            this._label = label;
+            L.Util.setOptions(this, options);
+        },
+        options: {
+            offset: new L.Point(0, 2)
+        },
+        onAdd: function(map) {
+            this._map = map;
+            if (!this._container) {
+                this._initLayout();
+            }
+            map.getPanes().overlayPane.appendChild(this._container);
+            this._container.innerHTML = this._label;
+            map.on('viewreset', this._reset, this);
+            this._reset();
+        },
+        onRemove: function(map) {
+            map.getPanes().overlayPane.removeChild(this._container);
+            map.off('viewreset', this._reset, this);
+        },
+        _reset: function() {
+            var pos = this._map.latLngToLayerPoint(this._latlng);
+            var op = new L.Point(pos.x + this.options.offset.x, pos.y - this.options.offset.y);
+            L.DomUtil.setPosition(this._container, op);
+        },
+        _initLayout: function() {
+            this._container = L.DomUtil.create('div', 'leaflet-label-overlay');
+        }
+    });   
+
+
+    // add text labels:
+var labelLocation = new L.LatLng(-36.89280138293982, 174.803466796875);
+    var labelTitle = new L.LabelOverlay(labelLocation, '<b>AUCKLAND</b>');
+
+
+
+var labelLocation2 = new L.LatLng(-37.779398571318765, 175.2703857421875);
+    var labelTitle2 = new L.LabelOverlay(labelLocation2, '<b>HAMILTON</b>');
+
+	
+var labelLocation3 = new L.LatLng(-41.28915808826863, 174.7753143310547);
+    var labelTitle3 = new L.LabelOverlay(labelLocation3, '<b>WELLINGTON</b>');
+
+	
+var labelLocation4 = new L.LatLng(-43.53062917044242, 172.63675689697266);
+    var labelTitle4 = new L.LabelOverlay(labelLocation4, '<b>CHRISTCHURCH</b>');
+
+	
+var labelLocation5 = new L.LatLng(-45.87758055276021, 170.5023193359375);
+    var labelTitle5 = new L.LabelOverlay(labelLocation5, '<b>DUNEDIN</b>');
+
+
+
+var labels = L.layerGroup([labelTitle, labelTitle2, labelTitle3, labelTitle4, labelTitle5]);
+
+
+
+var overlayMaps = {
+	"City Labels": labels
+};
+
+							// control pane
+
+L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+
+</script>
 </td>
 </tr>
 </tbody>
 </table>
+
 <table style="background-color: rgb(62, 188, 239); width: 80%; text-align: center; margin-left: auto; margin-right: auto;" border="0" cellpadding="2" cellspacing="2">
 <tbody>
 <tr>
