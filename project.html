@@ -1,14 +1,68 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Project</title>
+	<title>Project</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+	<link rel="stylesheet" href="leaflet.groupedlayercontrol.min.css" />
+	<link rel="stylesheet" href="leaflet.label.css" />
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" type="text/css">
+	<script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
 <style>
-A{text-decoration:none}
-a.specialeffects:hover {
-color: white ;
-background-color: transparent ;
-font-weight: bold ;
-}
 html, body {height: 100%;}
+
+
+	.info {
+			padding: 15px;
+			font: 12px Helvetica, sans-serif;
+			background: black;
+			background: rgba(255, 255, 255, 0.9);
+			box-shadow: 0 0 10px rgba(0,0,0,0.2);
+			border-radius: 15px;
+			width: 200px;
+			height: 40px;
+			}
+			
+		.info h4 {
+		margin: 0 0 0px;
+		color: #7f2704;
+		}
+		
+		.legend {
+			text-align: left;
+			line-height: 25px;
+			color: '#ffffff';
+			width: auto;
+			height: auto;
+			max-width: 110px;
+		}
+		
+		.legend i {
+			width: 18px;
+			height: 18px;
+			float: left;
+			margin-right: 8px;
+			opacity: 0.9;
+		}
+		
+	A.specialeffects {color: #ffffff;}
+	A.specialeffects:link  {text-decoration: none; color: #ffffff;}
+	A.specialeffects:visited {text-decoration: none; color: #ffffff;}
+	A.specialeffects:hover {text-decoration: none; color: #ffffff; font-weight: bold;}
+	A.specialeffects:active {text-decoration: none; color: #ffffff;}
+	
+	 .leaflet-popup-close-button {
+        display:none;
+    }
+
+  .leaflet-label-overlay {
+        line-height:0px;
+        margin-top: 1px;
+        position: absolute;
+		color: black;
+		font: 14px Arial, sans-serif;
+
+    }
 </style>
 </head>
 <body style="margin: 0pt; color: rgb(0, 0, 0); background-color: rgb(224, 224, 224);" "alink="#3ebcef" link="#ffffff" vlink="#ffffff">
@@ -49,9 +103,406 @@ The University of Auckland</big></big></h4>
 <table style="text-align: left; margin-left: auto; margin-right: auto; height: 70%; width: 80%;" border="0" cellpadding="2" cellspacing="2">
 <tbody>
 <tr>
-<td style="text-align: center; vertical-align: middle; width: 100%; height: 70%;">
-<br>
-<br>
+<td style="text-align: left; vertical-align: middle; width: 100%; height: 70%;">
+<div id="map" style="width: 100%; height: 100%;"><br>
+</div>
+<script type="text/javascript" src="pointsdata.js"></script>
+<script type="text/javascript" src="leaflet.js"></script>
+<script type="text/javascript" src="statecentres.js"></script>
+<script type="text/javascript" src="popdensity.js"></script>
+<script type="text/javascript" src="generation.js"></script>
+<script type="text/javascript" src="statelines.js"></script>
+<script type="text/javascript" src="slidercontrol.js"></script>
+<script type="text/javascript" src="nuclearprice.js"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+<script src="leaflet.groupedlayercontrol.min.js"></script>
+<script src="leaflet.label.js"></script>
+
+<script>
+						// 															MAP TILES
+
+	var attribution1 = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+	url1 = 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+	
+var attribution2 = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+	url2 = 'http://stamen-tiles-{s}.a.ssl.fastly.net/terrain-background/{z}/{x}/{y}.png';
+
+var lightGray = L.tileLayer(url1, {attribution: attribution1}),
+	terrain = L.tileLayer(url2, {attribution: attribution2});	
+	
+var map = L.map('map', {
+	center: [37.8282, -99.5855222],
+	zoom: 5,
+	layers: [lightGray]
+});
+
+var baseMaps = {
+				"Grayscale": lightGray,
+				"Terrain": terrain
+};
+						
+		
+	
+						// 														POINTS
+ var geojsonMarkerOptions = {
+    radius: 8,
+    fillColor: "#FFCC00",
+    color: "#323232",
+    weight: 2,
+    opacity: 0.7,
+    fillOpacity: 0.7
+  };
+
+
+
+var points = L.geoJson(nuclearData,
+{ pointToLayer: function (feature, latlng) {
+    var popupOptions = {maxWidth: 500};
+    var popupContent = '<h4>NAME: ' +
+            feature.properties.Name +'</h4>' + 'Commission Date ' + feature.properties.Connected + '<br />' + 'Generation Capacity: ' + feature.properties.PowerMW + ' MW';
+    var circle = L.circleMarker(latlng, geojsonMarkerOptions).bindPopup(popupContent,popupOptions);
+
+    // Highlight the marker on hover
+    circle.on('mouseover', function(){
+        circle.setStyle({color:'red'});
+    });
+
+    // Un-highlight the marker on hover out
+    circle.on('mouseout', function(){
+        circle.setStyle(geojsonMarkerOptions);
+    });
+
+    // Open the popup on click. Actually optional, as popup automatically adds a click listener.
+    circle.bindPopup(popupContent, popupOptions);
+    circle.on('mouseover', function(){
+        circle.openPopup(latlng);
+    });
+
+    return circle;
+}
+    });
+
+points.addTo(map);
+
+
+						// 												SLIDER CONTROL FOR POINTS
+var sliderControl = L.control.sliderControl({position: "topright", layer: points});
+map.addControl(sliderControl);
+		sliderControl.startSlider();
+
+
+
+						// 												COLOUR FOR DENSITY
+
+function getColor(d) {
+    return 	d > 10000? '#08306b':
+			d > 3000? '#08519c':
+    	 	d > 1000 ? '#2171b5' :
+           d > 500  ? '#4292c6' :
+           d > 200  ? '#6baed6' :
+           d > 50  ? '#9ecae1' :
+           d > 10   ? '#c6dbef' :
+           d > 5   ? '#deebf7' :
+           d > 0   ? '#f7fbff' :
+                      'transparent';
+}
+
+function style(feature) {
+    return {
+        weight: 1,
+        opacity: 0.8,
+        color: getColor(feature.properties.DENS2010),
+        fillOpacity: 1,
+		fillColor: getColor(feature.properties.DENS2010)
+    };
+}
+
+						// 												COLOUR FOR NUCLEAR
+
+function getColor2(d) {
+      return d >= 0.5 ? '#006d2c':
+					d >= 0.36 ? '#31a354':
+					d >= 0.25 ? '#74c476':
+					d >= 0.14 ? '#bae4b3':
+					d >= 0.01 ? '#edf8e9':
+					d == 0 ? 'transparent':
+					'transparent';
+					}
+					
+function setStyle(feature) {
+	return {
+        weight: 0.5,
+        opacity: 0.8,
+        color: 'black',
+        fillOpacity: 0.5,
+		fillColor: getColor2(feature.properties.NUCPROP)
+    };
+}
+
+
+						// 												COLOUR FOR PRICE
+
+function priceColor(d) {
+      return d >= 12.76 ? '#a50f15':
+      				d >= 9.15 ? '#de2d26':
+					d >= 8.43 ? '#fb6a4a':
+					d >= 7.58 ? '#fcae91':
+					d < 7.58 ? '#fee5d9':
+					'transparent';
+					}
+					
+function priceStyle(feature) {
+	return {
+        weight: 0.5,
+        opacity: 0.8,
+        color: 'black',
+        fillOpacity: 0.5,
+		fillColor: priceColor(feature.properties.Average_retail_price_of_electricity_CENTSTEN)
+    };
+}
+
+
+								//									 GENERATION JSON INCLUDING COLOUR
+
+var	generation = L.geoJson(genstat, {style: setStyle});
+								
+								//										STATELINES JSON			
+var statelines = L.geoJson(statelines, {style: 
+	{color: '#000000',
+	weight: '0.5'}}
+	);
+
+
+
+								// 										STATES NAME
+	
+//Add labels layer
+var labelStyle = {
+    color: '#CCC',
+    opacity: 1
+};
+
+var labelMarkerOptions = {
+        opacity: 0,
+        fillOpacity: 0
+};
+
+var labelLayer = L.geoJson(centroid, {
+        pointToLayer: function (feature, latlng) {
+                return L.circleMarker(latlng, labelMarkerOptions);
+        },
+        onEachFeature: function (feature, layer) {
+                layer.bindLabel(feature.properties.STUSPS, {noHide:true});
+        }
+});
+labelLayer.eachLayer(function(l) {l.showLabel();});
+
+
+
+
+var pricedata = L.geoJson(nucprice, {style: priceStyle});
+													
+								
+								// 											DENSITY LEGEND
+								
+var populationLegend = L.control({position: 'bottomright'});
+
+populationLegend.onAdd = function (map) {
+	var div = L.DomUtil.create('div', 'info legend'),
+			grades = [0, 5, 10, 50, 200, 500, 1000, 3000, 10000],
+			key_labels = ["0 to 5", "6 to 10", "11 to 50", "51 to 200", "201 to 500", "501 to 1000", "1001 to 3000", "3001 to 10000", ">10000"],
+			labels = ["<b>Population Density, 2010</b><br />People/km2"],
+			from, to;
+			
+	for (var i = 0; i < grades.length; i++){
+		from = grades [i];
+		to = grades[i + 1];
+		
+		labels.push(
+		'<i style = "background:' + getColor(from + 1) + '"></i>' +
+			key_labels[i]);
+		}
+
+	div.innerHTML = labels.join('<br>');
+	return div;
+	};
+
+
+
+									// 									NUCLEAR LEGEND
+	
+var nuclearLegend = L.control({position: 'bottomright'});
+
+	nuclearLegend.onAdd = function (map) {
+	var div = L.DomUtil.create('div', 'info legend'),
+			grades = [, 0.01, 0.14, 0.25, 0.36, 0.5],
+			key_labels = ["0", "0.01-0.13", "0.14-0.24", "0.25-0.35", "0.36-0.49", ">0.50"],
+			labels = ["<b>Nuclear Proportion of Total Power, 2010</b>"],
+			from, to;
+			
+	for (var i = 0; i < grades.length; i++){
+		from = grades [i];
+		to = grades[i + 0.01];
+		
+		labels.push(
+		'<i style = "background:' + getColor2(from + 0.01) + '"></i>' +
+			key_labels[i]);
+		}
+
+	div.innerHTML = labels.join('<br>');
+	return div;
+	};
+
+
+									// 										PRICE LEGEND
+
+var priceLegend = L.control({position: 'bottomright'});
+
+	priceLegend.onAdd = function (map) {
+	var div = L.DomUtil.create('div', 'info legend'),
+			grades = [0, 7.58, 8.43, 9.15, 12.76],
+			key_labels = ["6.2-7.57", "7.58-8.42", "8.43-9.14", "9.15-12.75", "12.76-17.38"],
+			labels = ["<b>Average Electricity Price by State, 2010</b><br />Cents/kWh"],
+			from, to;
+			
+	for (var i = 0; i < grades.length; i++){
+		from = grades [i];
+		to = grades[i + 0.01];
+		
+		labels.push(
+		'<i style = "background:' + priceColor(from + 0.01) + '"></i>' +
+			key_labels[i]);
+		}
+
+	div.innerHTML = labels.join('<br>');
+	return div;
+	};
+
+
+
+									//										LEGEND ADD/REMOVE
+
+// Add and remove legend from layers
+map.on('overlayadd', function (eventLayer) {
+// Switch to the Permafrost legend...
+   if (eventLayer.name === 'Generation') {
+       nuclearLegend.addTo(map),
+	   points.bringToFront();
+   		}
+	else if (eventLayer.name === 'Counties') {
+		populationLegend.addTo(map);
+		info.addTo(map);
+		geojson.bringToBack(),
+		points.bringToFront();
+		}
+	else if (eventLayer.name === 'Nuclear Power Plants') {
+		map.addControl(sliderControl),
+		sliderControl.startSlider(),
+		points.bringToFront();
+		}
+	else if (eventLayer.name === 'Price') {
+		priceLegend.addTo(map),
+		points.bringToFront();
+		}
+	else if (eventLayer.name === 'State Abbreviations') {
+		labelLayer.addTo(map),
+		points.bringToFront(),
+		geojson.bringToBack();
+		}
+  });
+  
+map.on('overlayremove', function (eventLayer) {
+	if (eventLayer.name === 'Generation') {
+		this.removeControl(nuclearLegend);
+	}
+	else if (eventLayer.name === 'Counties') {
+		this.removeControl(populationLegend),
+		map.removeControl(info);
+		}
+	else if (eventLayer.name === 'Nuclear Power Plants') {
+		map.removeControl(sliderControl);
+		}
+	else if (eventLayer.name === 'Price') {
+		map.removeControl(priceLegend);
+		}
+	else if (eventLayer.name === 'State Abbreviations') {
+		map.removeControl(labelLayer);
+		}
+  });
+
+
+						// 										DENSITY INFORMATION WHEN HIGHLIGHT
+var geojson;
+
+	function highlightFeature(e){
+		
+		var layer = e.target;
+		
+		layer.setStyle({
+		weight: 3,
+		color: '#000000',
+		fillOpacity: 1.0
+		});
+		
+
+	
+	info.update(layer.feature.properties);
+	}
+
+	function resetHighlight(e){
+		geojson.resetStyle(e.target);
+		info.update();
+		}
+		
+	function onEachFeature(feature, layer){
+		layer.on ({
+			mouseover: highlightFeature,
+			mouseout: resetHighlight,
+			});
+		}
+		
+
+						// 											INFO HIGHLIGHT
+		
+var info = L.control({positon: 'topright'});
+
+	info.onAdd = function (map) {
+		this._div = L.DomUtil.create('div', 'info'); 
+		this.update();
+		return this._div;
+	};
+
+	info.update = function (props) {
+		this._div.innerHTML = '<h4>County Population Density, 2010:</h4>' + (props ? '<b>County Name: ' + props.NAME + '</b><br />' + props.DENS2010 + ' people/km2 ' 
+			: 'Hover over counties to see population density');
+	};
+
+
+		
+geojson = L.geoJson(countyData, {style: style,
+									onEachFeature: onEachFeature
+									});
+										
+								
+								// 									LAYER CHANGE OPTIONS
+									
+var overlayMaps = {
+	"Electricity Information": {
+		"Nuclear Power Plants": points,
+		"Generation": generation,
+		"Price": pricedata
+		},
+	"State Information": {
+		"State Abbreviations": labelLayer,
+		"State Boundaries": statelines},
+	"County Information": {
+		"Counties": geojson}
+	};
+	
+L.control.groupedLayers(baseMaps, overlayMaps, {position: 'topleft', collapsed: false}).addTo(map);
+														
+</script>
 </td>
 </tr>
 </tbody>
