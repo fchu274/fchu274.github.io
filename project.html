@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
 	<title>Project</title>
@@ -152,41 +153,16 @@ var baseMaps = {
 		
 	
 						// 														POINTS
- var geojsonMarkerOptions = {
-    radius: 4,
-    fillColor: "#FFCC00",
-    color: "#323232",
-    weight: 2,
-    opacity: 0.7,
-    fillOpacity: 0.7
-  };
-
-
-
 var points = L.geoJson(nuclearData,
-{ pointToLayer: function (feature, latlng) {
-    var popupOptions = {maxWidth: 500};
-    var popupContent = '<h4>NAME: ' +
-            feature.properties.Name +'</h4>' + 'Commission Date ' + feature.properties.Connected + '<br />' + 'Generation Capacity: ' + feature.properties.PowerMW + ' MW';
-    var circle = L.circleMarker(latlng, geojsonMarkerOptions).bindPopup(popupContent,popupOptions);
+{ pointToLayer: function(feature, latlng) {
+   var lightbulb = L.icon({
+                      iconSize: [15, 15],
+                      iconAnchor: [1, 1],
+                      popupAnchor:  [1, -24],
+                      iconUrl: 'bolt2icon.svg'
+   });
 
-    // Highlight the marker on hover
-    circle.on('mouseover', function(){
-        circle.setStyle({color:'red'});
-    });
-
-    // Un-highlight the marker on hover out
-    circle.on('mouseout', function(){
-        circle.setStyle(geojsonMarkerOptions);
-    });
-
-    // Open the popup on click. Actually optional, as popup automatically adds a click listener.
-    circle.bindPopup(popupContent, popupOptions);
-    circle.on('mouseover', function(){
-        circle.openPopup(latlng);
-    });
-
-    return circle;
+   return L.marker(latlng, {icon: lightbulb});
 }
     });
 
@@ -400,7 +376,7 @@ map.on('overlayadd', function (eventLayer) {
 	else if (eventLayer.name === 'Counties') {
 		populationLegend.addTo(map);
 		info.addTo(map);
-		geojson.bringToBack(),
+		geojson.bringToBack();
 		points.bringToFront();
 		}
 	else if (eventLayer.name === 'Nuclear Power Plants') {
